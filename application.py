@@ -75,13 +75,13 @@ my_run = client.beta.threads.runs.create(
   assistant_id=my_assistant.id
 )
 
-while my_run.status in ["queued", "in_progress"]:
-    keep_retrieving_run = client.beta.threads.runs.retrieve(
+while True:
+    my_run = client.beta.threads.runs.retrieve(
         thread_id=my_thread.id,
         run_id=my_run.id
     )
 
-    if keep_retrieving_run.status == "completed":
+    if my_run.status == "completed":
         print("\n")
 
         # Step 6: Retrieve the Messages added by the Assistant to the Thread
@@ -93,10 +93,11 @@ while my_run.status in ["queued", "in_progress"]:
         print(f"Assistant: {all_messages.data[0].content[0].text.value}")
 
         break
-    elif keep_retrieving_run.status == "queued" or keep_retrieving_run.status == "in_progress":
-        pass
+    elif my_run.status in ["queued", "in_progress"]:
+        time.sleep(1)
+        continue
     else:
-        print(f"Run status: {keep_retrieving_run.status}")
+        print(f"Run status: {my_run.status}")
         break
 
 client.files.delete(f"{image_id}")
